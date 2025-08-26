@@ -254,8 +254,7 @@ const CalculatorSection: React.FC = () => {
       // Criar PDF diretamente com jsPDF
       const pdf = new jsPDF("p", "mm", "a4");
       const pageWidth = 210;
-      const pageHeight = 297;
-      const margin = 20;
+      const margin = 15;
       const contentWidth = pageWidth - 2 * margin;
       let yPosition = margin;
 
@@ -263,29 +262,29 @@ const CalculatorSection: React.FC = () => {
       pdf.setFont("helvetica");
 
       // Cabeçalho
-      pdf.setFontSize(24);
+      pdf.setFontSize(20);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(31, 41, 55);
       pdf.text("NOVA VERTE", pageWidth / 2, yPosition, { align: "center" });
-      yPosition += 8;
+      yPosition += 6;
 
-      pdf.setFontSize(10);
+      pdf.setFontSize(9);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(107, 114, 128);
       pdf.text("Soluções Financeiras", pageWidth / 2, yPosition, {
         align: "center",
       });
-      yPosition += 15;
+      yPosition += 12;
 
-      pdf.setFontSize(18);
+      pdf.setFontSize(16);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(31, 41, 55);
       pdf.text("Simulação de Operação Financeira", pageWidth / 2, yPosition, {
         align: "center",
       });
-      yPosition += 10;
+      yPosition += 8;
 
-      pdf.setFontSize(10);
+      pdf.setFontSize(9);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(107, 114, 128);
       pdf.text(
@@ -294,24 +293,24 @@ const CalculatorSection: React.FC = () => {
         yPosition,
         { align: "center" }
       );
-      yPosition += 20;
+      yPosition += 15;
 
       // Linha separadora
       pdf.setDrawColor(55, 65, 81);
       pdf.setLineWidth(0.5);
       pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 15;
+      yPosition += 10;
 
       // Configurações da Operação
-      pdf.setFontSize(14);
+      pdf.setFontSize(12);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(31, 41, 55);
       pdf.text("Configurações da Operação", margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
 
       // Grid de configurações
-      const configBoxWidth = (contentWidth - 20) / 2;
-      const configBoxHeight = 15;
+      const configBoxWidth = (contentWidth - 15) / 2;
+      const configBoxHeight = 12;
 
       // Primeira coluna - Taxa
       pdf.setFillColor(249, 250, 251);
@@ -319,19 +318,19 @@ const CalculatorSection: React.FC = () => {
       pdf.setDrawColor(229, 231, 235);
       pdf.rect(margin, yPosition, configBoxWidth, configBoxHeight, "S");
 
-      pdf.setFontSize(10);
+      pdf.setFontSize(8);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(55, 65, 81);
       pdf.text(
         `Taxa a.m.: ${taxaMensal.replace(".", ",")}%`,
-        margin + 5,
-        yPosition + 10
+        margin + 3,
+        yPosition + 8
       );
 
       // Segunda coluna - Total de Títulos
       pdf.setFillColor(249, 250, 251);
       pdf.rect(
-        margin + configBoxWidth + 20,
+        margin + configBoxWidth + 15,
         yPosition,
         configBoxWidth,
         configBoxHeight,
@@ -339,7 +338,7 @@ const CalculatorSection: React.FC = () => {
       );
       pdf.setDrawColor(229, 231, 235);
       pdf.rect(
-        margin + configBoxWidth + 20,
+        margin + configBoxWidth + 15,
         yPosition,
         configBoxWidth,
         configBoxHeight,
@@ -348,17 +347,17 @@ const CalculatorSection: React.FC = () => {
 
       pdf.text(
         `Total de Títulos: ${duplicatas.length}`,
-        margin + configBoxWidth + 25,
-        yPosition + 10
+        margin + configBoxWidth + 18,
+        yPosition + 8
       );
-      yPosition += configBoxHeight + 20;
+      yPosition += configBoxHeight + 15;
 
       // Tabela de Resultados
-      pdf.setFontSize(14);
+      pdf.setFontSize(12);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(31, 41, 55);
       pdf.text("Detalhamento dos Títulos", margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
 
       // Cabeçalho da tabela
       const tableHeaders = [
@@ -368,49 +367,44 @@ const CalculatorSection: React.FC = () => {
         "Deságio",
         "Valor Líquido",
       ];
-      const columnWidths = [35, 20, 40, 40, 40];
+      const columnWidths = [30, 18, 35, 35, 35];
       let xPosition = margin;
 
       pdf.setFillColor(243, 244, 246);
-      pdf.rect(margin, yPosition, contentWidth, 12, "F");
+      pdf.rect(margin, yPosition, contentWidth, 10, "F");
       pdf.setDrawColor(209, 213, 219);
-      pdf.rect(margin, yPosition, contentWidth, 12, "S");
+      pdf.rect(margin, yPosition, contentWidth, 10, "S");
 
-      pdf.setFontSize(9);
+      pdf.setFontSize(8);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(55, 65, 81);
 
       tableHeaders.forEach((header, index) => {
         const align = index === 0 ? "left" : index === 1 ? "center" : "right";
-        pdf.text(header, xPosition + (index === 0 ? 5 : 0), yPosition + 8, {
+        pdf.text(header, xPosition + (index === 0 ? 3 : 0), yPosition + 7, {
           align,
         });
         xPosition += columnWidths[index];
       });
 
-      yPosition += 12;
+      yPosition += 10;
 
       // Linhas da tabela
-      pdf.setFontSize(9);
+      pdf.setFontSize(8);
       pdf.setFont("helvetica", "normal");
 
       resultado.linhas.forEach((linha, index) => {
-        if (yPosition > pageHeight - 40) {
-          pdf.addPage();
-          yPosition = margin;
-        }
-
         const bgColor = index % 2 === 0 ? [255, 255, 255] : [249, 250, 251];
         pdf.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
-        pdf.rect(margin, yPosition, contentWidth, 12, "F");
+        pdf.rect(margin, yPosition, contentWidth, 10, "F");
         pdf.setDrawColor(209, 213, 219);
-        pdf.rect(margin, yPosition, contentWidth, 12, "S");
+        pdf.rect(margin, yPosition, contentWidth, 10, "S");
 
         xPosition = margin;
 
         // Título
         pdf.setTextColor(31, 41, 55);
-        pdf.text(linha.titulo, xPosition + 5, yPosition + 8);
+        pdf.text(linha.titulo, xPosition + 3, yPosition + 7);
         xPosition += columnWidths[0];
 
         // Dias
@@ -418,7 +412,7 @@ const CalculatorSection: React.FC = () => {
         pdf.text(
           linha.dias.toString(),
           xPosition + columnWidths[1] / 2,
-          yPosition + 8,
+          yPosition + 7,
           { align: "center" }
         );
         xPosition += columnWidths[1];
@@ -427,8 +421,8 @@ const CalculatorSection: React.FC = () => {
         pdf.setTextColor(31, 41, 55);
         pdf.text(
           formatCurrency(linha.valorFace),
-          xPosition + columnWidths[2] - 5,
-          yPosition + 8,
+          xPosition + columnWidths[2] - 3,
+          yPosition + 7,
           { align: "right" }
         );
         xPosition += columnWidths[2];
@@ -437,8 +431,8 @@ const CalculatorSection: React.FC = () => {
         pdf.setTextColor(220, 38, 38);
         pdf.text(
           formatCurrency(linha.desagio),
-          xPosition + columnWidths[3] - 5,
-          yPosition + 8,
+          xPosition + columnWidths[3] - 3,
+          yPosition + 7,
           { align: "right" }
         );
         xPosition += columnWidths[3];
@@ -448,32 +442,27 @@ const CalculatorSection: React.FC = () => {
         pdf.setFont("helvetica", "bold");
         pdf.text(
           formatCurrency(linha.valorLiquido),
-          xPosition + columnWidths[4] - 5,
-          yPosition + 8,
+          xPosition + columnWidths[4] - 3,
+          yPosition + 7,
           { align: "right" }
         );
         pdf.setFont("helvetica", "normal");
 
-        yPosition += 12;
+        yPosition += 10;
       });
 
-      yPosition += 15;
+      yPosition += 10;
 
       // Resumo Financeiro em Grid
-      if (yPosition > pageHeight - 80) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-
-      pdf.setFontSize(14);
+      pdf.setFontSize(12);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(31, 41, 55);
       pdf.text("Resumo Financeiro", margin, yPosition);
-      yPosition += 8;
+      yPosition += 6;
 
       // Grid 2x2 para resumo
-      const gridBoxWidth = (contentWidth - 20) / 2;
-      const gridBoxHeight = 25;
+      const gridBoxWidth = (contentWidth - 15) / 2;
+      const gridBoxHeight = 28;
 
       // Receitas
       pdf.setFillColor(240, 253, 244);
@@ -481,27 +470,27 @@ const CalculatorSection: React.FC = () => {
       pdf.setDrawColor(187, 247, 208);
       pdf.rect(margin, yPosition, gridBoxWidth, gridBoxHeight, "S");
 
-      pdf.setFontSize(11);
+      pdf.setFontSize(10);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(22, 101, 52);
-      pdf.text("Receitas", margin + 5, yPosition + 8);
+      pdf.text("Receitas", margin + 3, yPosition + 8);
 
-      pdf.setFontSize(16);
+      pdf.setFontSize(14);
       pdf.text(
         formatCurrency(resultado.totalBruto),
-        margin + 5,
+        margin + 3,
         yPosition + 18
       );
 
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(107, 114, 128);
-      pdf.text("Total Bruto", margin + 5, yPosition + 25);
+      pdf.text("Total Bruto", margin + 3, yPosition + 25);
 
       // Despesas
       pdf.setFillColor(254, 242, 242);
       pdf.rect(
-        margin + gridBoxWidth + 20,
+        margin + gridBoxWidth + 15,
         yPosition,
         gridBoxWidth,
         gridBoxHeight,
@@ -509,152 +498,82 @@ const CalculatorSection: React.FC = () => {
       );
       pdf.setDrawColor(254, 202, 202);
       pdf.rect(
-        margin + gridBoxWidth + 20,
+        margin + gridBoxWidth + 15,
         yPosition,
         gridBoxWidth,
         gridBoxHeight,
         "S"
       );
 
-      pdf.setFontSize(11);
+      pdf.setFontSize(10);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(153, 27, 27);
-      pdf.text("Despesas", margin + gridBoxWidth + 25, yPosition + 8);
+      pdf.text("Despesas", margin + gridBoxWidth + 18, yPosition + 8);
 
-      pdf.setFontSize(16);
+      pdf.setFontSize(14);
       pdf.text(
         formatCurrency(resultado.totalDesagio + resultado.totalCustos + 7.0),
-        margin + gridBoxWidth + 25,
+        margin + gridBoxWidth + 18,
         yPosition + 18
       );
 
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(107, 114, 128);
-      pdf.text("Total Despesas", margin + gridBoxWidth + 25, yPosition + 25);
+      pdf.text("Total Despesas", margin + gridBoxWidth + 18, yPosition + 25);
 
-      yPosition += gridBoxHeight + 20;
-
-      // Detalhamento dos Custos
-      if (yPosition > pageHeight - 80) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-
-      pdf.setFontSize(14);
-      pdf.setFont("helvetica", "bold");
-      pdf.setTextColor(31, 41, 55);
-      pdf.text("Detalhamento dos Custos", margin, yPosition);
-      yPosition += 8;
-
-      // Grid 2x1 para detalhamento
-      const detailBoxWidth = (contentWidth - 20) / 2;
-      const detailBoxHeight = 35;
-
-      // Despesas Detalhadas
-      pdf.setFillColor(254, 242, 242);
-      pdf.rect(margin, yPosition, detailBoxWidth, detailBoxHeight, "F");
-      pdf.setDrawColor(254, 202, 202);
-      pdf.rect(margin, yPosition, detailBoxWidth, detailBoxHeight, "S");
-
-      pdf.setFontSize(11);
-      pdf.setFont("helvetica", "bold");
-      pdf.setTextColor(153, 27, 27);
-      pdf.text("Despesas Detalhadas", margin + 5, yPosition + 8);
-
-      pdf.setFontSize(9);
-      pdf.setFont("helvetica", "normal");
-      pdf.setTextColor(107, 114, 128);
-
-      let detailY = yPosition + 18;
-      pdf.text("Deságio Total:", margin + 5, detailY);
-      pdf.setTextColor(153, 27, 27);
-      pdf.setFont("helvetica", "bold");
-      pdf.text(
-        formatCurrency(resultado.totalDesagio),
-        margin + detailBoxWidth - 5,
-        detailY,
-        { align: "right" }
-      );
-
-      detailY += 6;
-      pdf.setFont("helvetica", "normal");
-      pdf.setTextColor(107, 114, 128);
-      pdf.text("Tarifas:", margin + 5, detailY);
-      pdf.setTextColor(153, 27, 27);
-      pdf.setFont("helvetica", "bold");
-      pdf.text(
-        formatCurrency(resultado.totalCustos),
-        margin + detailBoxWidth - 5,
-        detailY,
-        { align: "right" }
-      );
-
-      detailY += 6;
-      pdf.setFont("helvetica", "normal");
-      pdf.setTextColor(107, 114, 128);
-      pdf.text("TED:", margin + 5, detailY);
-      pdf.setTextColor(153, 27, 27);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("R$ 7,00", margin + detailBoxWidth - 5, detailY, {
-        align: "right",
-      });
+      yPosition += gridBoxHeight + 15;
 
       // Resultado Final
       pdf.setFillColor(239, 246, 255);
       pdf.rect(
-        margin + detailBoxWidth + 20,
+        margin + gridBoxWidth / 2,
         yPosition,
-        detailBoxWidth,
-        detailBoxHeight,
+        gridBoxWidth,
+        gridBoxHeight,
         "F"
       );
       pdf.setDrawColor(191, 219, 254);
       pdf.rect(
-        margin + detailBoxWidth + 20,
+        margin + gridBoxWidth / 2,
         yPosition,
-        detailBoxWidth,
-        detailBoxHeight,
+        gridBoxWidth,
+        gridBoxHeight,
         "S"
       );
 
-      pdf.setFontSize(11);
+      pdf.setFontSize(10);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(30, 64, 175);
-      pdf.text("Resultado Final", margin + detailBoxWidth + 25, yPosition + 8);
+      pdf.text("Resultado Final", margin + gridBoxWidth / 2 + 3, yPosition + 8);
 
-      pdf.setFontSize(18);
+      pdf.setFontSize(16);
       pdf.text(
         formatCurrency(resultado.valorLiquido),
-        margin + detailBoxWidth + 25 + detailBoxWidth / 2,
-        yPosition + 25,
+        margin + gridBoxWidth,
+        yPosition + 18,
         { align: "center" }
       );
 
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(107, 114, 128);
       pdf.text(
         "Valor Líquido a Receber",
-        margin + detailBoxWidth + 25 + detailBoxWidth / 2,
-        yPosition + 35,
+        margin + gridBoxWidth,
+        yPosition + 25,
         { align: "center" }
       );
 
-      yPosition += detailBoxHeight + 20;
+      yPosition += gridBoxHeight + 10;
 
       // Rodapé
-      if (yPosition > pageHeight - 30) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-
       pdf.setDrawColor(209, 213, 219);
       pdf.setLineWidth(0.5);
       pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 15;
+      yPosition += 10;
 
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(107, 114, 128);
       pdf.text(
@@ -663,7 +582,7 @@ const CalculatorSection: React.FC = () => {
         yPosition,
         { align: "center" }
       );
-      yPosition += 5;
+      yPosition += 4;
       pdf.text(
         "Para dúvidas, entre em contato conosco",
         pageWidth / 2,
@@ -698,15 +617,17 @@ const CalculatorSection: React.FC = () => {
               </p>
 
               <div className="space-y-4 mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">
+                <Card className="max-w-md">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-base">
                       Configurações da Operação
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 pb-6">
                     <div>
-                      <Label htmlFor="taxaInput">Taxa a.m. (%)</Label>
+                      <Label htmlFor="taxaInput" className="text-sm">
+                        Taxa a.m. (%)
+                      </Label>
                       <CurrencyInput
                         placeholder="00,00"
                         className="mt-1"
@@ -715,20 +636,20 @@ const CalculatorSection: React.FC = () => {
                       />
                     </div>
                     <div className="pt-3 border-slate-200 border-t">
-                      <Label className="font-medium text-base">
+                      <Label className="font-medium text-sm">
                         Custos Fixos
                       </Label>
-                      <div className="space-y-1 mt-2 text-slate-600 text-sm">
+                      <div className="space-y-2 mt-3 text-slate-600 text-xs">
                         <p className="flex justify-between">
-                          <span>Tarifa de INCLUSÃO Operação:</span>
+                          <span>Tarifa de INCLUSÃO:</span>
                           <strong>R$ 25,00</strong>
                         </p>
                         <p className="flex justify-between">
-                          <span>Tarifa PIX (por OPERAÇÃO):</span>
+                          <span>Tarifa PIX:</span>
                           <strong>R$ 7,00</strong>
                         </p>
                         <p className="flex justify-between">
-                          <span>Registro de Cobrança (por TITULO):</span>
+                          <span>Registro por TÍTULO:</span>
                           <strong>R$ 9,80</strong>
                         </p>
                       </div>
@@ -801,25 +722,27 @@ const CalculatorSection: React.FC = () => {
             <div className="lg:col-span-3">
               {showResultado && resultado ? (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-xl">
                       Resultado da Simulação
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-4">
                     <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Título</TableHead>
-                            <TableHead className="text-center">Dias</TableHead>
-                            <TableHead className="text-right">
+                            <TableHead className="text-xs">Título</TableHead>
+                            <TableHead className="text-xs text-center">
+                              Dias (+2 float)
+                            </TableHead>
+                            <TableHead className="text-xs text-right">
                               Valor Face
                             </TableHead>
-                            <TableHead className="text-right">
+                            <TableHead className="text-xs text-right">
                               Deságio (R$)
                             </TableHead>
-                            <TableHead className="text-right">
+                            <TableHead className="text-xs text-right">
                               Valor Líquido
                             </TableHead>
                           </TableRow>
@@ -827,19 +750,19 @@ const CalculatorSection: React.FC = () => {
                         <TableBody>
                           {resultado.linhas.map((linha, index) => (
                             <TableRow key={index}>
-                              <TableCell className="font-medium">
+                              <TableCell className="font-medium text-xs">
                                 {linha.titulo}
                               </TableCell>
-                              <TableCell className="text-center">
+                              <TableCell className="text-xs text-center">
                                 {linha.dias}
                               </TableCell>
-                              <TableCell className="text-right">
+                              <TableCell className="text-xs text-right">
                                 {formatCurrency(linha.valorFace)}
                               </TableCell>
-                              <TableCell className="text-red-600 text-right">
+                              <TableCell className="text-red-600 text-xs text-right">
                                 {formatCurrency(linha.desagio)}
                               </TableCell>
-                              <TableCell className="font-bold text-right">
+                              <TableCell className="font-bold text-xs text-right">
                                 {formatCurrency(linha.valorLiquido)}
                               </TableCell>
                             </TableRow>
@@ -848,63 +771,43 @@ const CalculatorSection: React.FC = () => {
                       </Table>
                     </div>
 
-                    <div
-                      id="tarifasExplicacao"
-                      className="mt-6 pt-4 border-slate-200 border-t"
-                    >
-                      <h4 className="font-bold text-slate-800">
-                        Resumo Financeiro
-                      </h4>
-                      <p className="mb-2 text-slate-500 text-xs">
-                        Deságio calculado com taxa de{" "}
-                        <strong id="taxaResultado">
-                          {taxaMensal.replace(".", ",")}
-                        </strong>
-                        % a.m.
-                      </p>
-                    </div>
-
-                    <div className="space-y-2 mt-2 pt-4 border-slate-300 border-t-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">
-                          Total Bruto (Soma):
-                        </span>
-                        <strong id="totalBruto" className="text-slate-800">
+                    <div className="space-y-2 pt-2 border-slate-200 border-t">
+                      <div className="flex justify-between mb-2 text-xs">
+                        <span className="text-slate-600">Total Bruto:</span>
+                        <strong className="text-slate-800">
                           {formatCurrency(resultado.totalBruto)}
                         </strong>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Total Deságio:</span>
-                        <strong id="totalDesagio" className="text-red-600">
+                      <div className="flex justify-between mb-2 text-xs">
+                        <span className="text-slate-600">
+                          Total Deságio (c/ float):
+                        </span>
+                        <strong className="text-red-600">
                           {formatCurrency(resultado.totalDesagio)}
                         </strong>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">
-                          Total de Tarifas:
-                        </span>
-                        <strong id="totalCustos" className="text-red-600">
+                      <div className="flex justify-between mb-3 text-xs">
+                        <span className="text-slate-600">Total Tarifas:</span>
+                        <strong className="text-red-600">
                           {formatCurrency(resultado.totalCustos)}
                         </strong>
                       </div>
-                      <div className="flex justify-between items-center mt-4 pt-4 border-slate-300 border-t">
-                        <span className="font-bold text-slate-800 text-lg">
-                          Total Líquido a Receber:
+                      <div className="flex justify-between items-center mb-4 pt-2 border-slate-300 border-t">
+                        <span className="font-bold text-slate-800 text-sm">
+                          Total Líquido:
                         </span>
-                        <strong
-                          id="valorLiquido"
-                          className="font-bold text-2xl brand-green"
-                        >
+                        <strong className="font-bold text-lg brand-green">
                           {formatCurrency(resultado.valorLiquido)}
                         </strong>
                       </div>
                     </div>
 
-                    <div className="flex sm:flex-row flex-col gap-2 mt-6 pt-4 border-slate-200 border-t">
+                    <div className="flex sm:flex-row flex-col gap-2 pt-2 border-slate-200 border-t">
                       <Button
                         onClick={gerarPDF}
-                        className="flex justify-center items-center gap-2"
                         variant="outline"
+                        size="sm"
+                        className="flex justify-center items-center gap-2"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -924,6 +827,7 @@ const CalculatorSection: React.FC = () => {
                       </Button>
                       <Button
                         variant="destructive"
+                        size="sm"
                         onClick={limparDados}
                         className="flex justify-center items-center gap-2"
                       >
@@ -948,12 +852,12 @@ const CalculatorSection: React.FC = () => {
                 </Card>
               ) : (
                 <Card>
-                  <CardContent className="py-12 text-slate-500 text-center">
-                    <div className="mb-4 text-4xl">📊</div>
-                    <h3 className="mb-2 font-medium text-slate-700 text-lg">
+                  <CardContent className="py-8 text-slate-500 text-center">
+                    <div className="mb-3 text-3xl">📊</div>
+                    <h3 className="mb-2 font-medium text-slate-700 text-base">
                       Resultado da Simulação
                     </h3>
-                    <p className="text-sm">
+                    <p className="text-xs">
                       Adicione duplicatas e clique em "Calcular" para ver o
                       resultado aqui.
                     </p>
