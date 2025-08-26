@@ -718,11 +718,24 @@ const CalculatorSection: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-4 mt-4">
-                <Button variant="outline" onClick={addDuplicata}>
+                <Button
+                  variant="outline"
+                  onClick={addDuplicata}
+                  className="bg-white hover:bg-gray-100 hover:shadow-sm border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 transition-colors"
+                >
                   Adicionar Duplicata
                 </Button>
-                <Button onClick={calcular}>Calcular</Button>
-                <Button variant="outline" onClick={limparDados}>
+                <Button
+                  onClick={calcular}
+                  className="bg-brand-green hover:bg-brand-green-dark hover:shadow-sm text-white transition-all"
+                >
+                  Calcular
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={limparDados}
+                  className="bg-white hover:bg-red-50 hover:shadow-sm border border-red-200 hover:border-red-300 text-red-600 transition-colors"
+                >
                   Limpar Dados
                 </Button>
               </div>
@@ -817,7 +830,7 @@ const CalculatorSection: React.FC = () => {
                         onClick={gerarPDF}
                         variant="outline"
                         size="sm"
-                        className="flex justify-center items-center gap-2"
+                        className="flex justify-center items-center gap-2 bg-white hover:bg-gray-100 hover:shadow-sm border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 transition-colors"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
