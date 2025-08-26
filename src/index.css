@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom brand colors for Nova Verte */
+.brand-green {
+  color: #8dc63f;
+}
+
+.bg-brand-green {
+  background-color: #8dc63f;
+}
+
+.border-brand-green {
+  border-color: #8dc63f;
+}
+
+.hover\:bg-brand-green-dark:hover {
+  background-color: #7ab33a;
+}
+
+.focus\:ring-brand-green:focus {
+  --tw-ring-color: #8dc63f;
+}
+
+/* Font family */
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Custom component styles */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
