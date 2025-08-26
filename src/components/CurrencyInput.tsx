@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Input } from "./ui/input";
 
 interface CurrencyInputProps {
   value?: number;
@@ -35,7 +36,7 @@ export function CurrencyInput({
   }, [value]);
 
   return (
-    <input
+    <Input
       inputMode="numeric"
       value={brazilianFormatter.format(display)}
       placeholder={placeholder}

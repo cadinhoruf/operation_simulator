@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "./ui/button";
 
 const Footer: React.FC = () => {
   return (
@@ -13,12 +14,12 @@ const Footer: React.FC = () => {
               Vamos conversar sobre como podemos ajudar sua empresa a crescer
               com saúde financeira.
             </p>
-            <a
-              href="mailto:comercial@novaverte.com.br"
-              className="inline-block bg-brand-green hover:bg-brand-green-dark mt-6 px-6 py-3 rounded-lg font-bold text-white transition duration-300"
+            <Button
+              asChild
+              className="bg-brand-green hover:bg-brand-green-dark mt-6 text-white"
             >
-              Entre em Contato
-            </a>
+              <a href="mailto:comercial@novaverte.com.br">Entre em Contato</a>
+            </Button>
           </div>
           <div>
             <h4 className="font-semibold text-white text-lg">Contato</h4>

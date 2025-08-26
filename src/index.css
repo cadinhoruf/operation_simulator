@@ -1,8 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Custom brand colors for Nova Verte */
 .brand-green {
   color: #8dc63f;
 }
@@ -36,6 +33,7 @@ body {
   margin-right: auto;
 }
 
+/* Responsive breakpoints usando @media queries nativas */
 @media (min-width: 640px) {
   .container {
     max-width: 640px;

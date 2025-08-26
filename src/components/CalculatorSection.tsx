@@ -1,8 +1,19 @@
-import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CurrencyInput } from "./CurrencyInput";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
 
 interface Duplicata {
   id: string;
@@ -240,200 +251,425 @@ const CalculatorSection: React.FC = () => {
     try {
       toast.info("Gerando PDF...");
 
-      // Criar um elemento temporário para o PDF
-      const pdfElement = document.createElement("div");
-      pdfElement.style.width = "210mm";
-      pdfElement.style.padding = "25mm";
-      pdfElement.style.backgroundColor = "#ffffff";
-      pdfElement.style.fontFamily = "Arial, sans-serif";
-      pdfElement.style.fontSize = "11px";
-      pdfElement.style.lineHeight = "1.5";
-      pdfElement.style.color = "#1f2937";
+      // Criar PDF diretamente com jsPDF
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 20;
+      const contentWidth = pageWidth - 2 * margin;
+      let yPosition = margin;
 
-      // Cabeçalho com logo e informações da empresa
-      pdfElement.innerHTML = `
-        <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #374151; padding-bottom: 25px;">
-          <div style="margin-bottom: 20px;">
-            <div style="font-size: 28px; font-weight: bold; color: #1f2937; margin-bottom: 5px;">NOVA VERTE</div>
-            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">Soluções Financeiras</div>
-          </div>
-          <h1 style="margin: 0; color: #1f2937; font-size: 22px; font-weight: bold;">
-            Simulação de Operação Financeira
-          </h1>
-          <p style="margin: 8px 0; color: #6b7280; font-size: 13px;">
-            Data da Simulação: ${new Date().toLocaleDateString("pt-BR")}
-          </p>
-        </div>
+      // Configurações de fonte
+      pdf.setFont("helvetica");
 
-        <!-- Configurações da Operação -->
-        <div style="margin-bottom: 30px; background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-radius: 6px;">
-          <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 15px; font-weight: bold; border-bottom: 1px solid #d1d5db; padding-bottom: 8px;">
-            Configurações da Operação
-          </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-            <div style="padding: 15px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
-              <strong style="color: #374151;">Taxa a.m.:</strong> ${taxaMensal.replace(
-                ".",
-                ","
-              )}%
-            </div>
-            <div style="padding: 15px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
-              <strong style="color: #374151;">Total de Títulos:</strong> ${
-                duplicatas.length
-              }
-            </div>
-          </div>
-        </div>
+      // Cabeçalho
+      pdf.setFontSize(24);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(31, 41, 55);
+      pdf.text("NOVA VERTE", pageWidth / 2, yPosition, { align: "center" });
+      yPosition += 8;
 
-        <!-- Tabela de Resultados -->
-        <div style="margin-bottom: 30px;">
-          <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 15px; font-weight: bold; border-bottom: 1px solid #d1d5db; padding-bottom: 8px;">
-            Detalhamento dos Títulos
-          </h3>
-          <table style="width: 100%; border-collapse: collapse; border: 1px solid #d1d5db;">
-            <thead>
-              <tr style="background: #f3f4f6;">
-                <th style="padding: 12px; text-align: left; border: 1px solid #d1d5db; font-weight: bold; color: #374151; font-size: 11px;">Título</th>
-                <th style="padding: 12px; text-align: center; border: 1px solid #d1d5db; font-weight: bold; color: #374151; font-size: 11px;">Dias</th>
-                <th style="padding: 12px; text-align: right; border: 1px solid #d1d5db; font-weight: bold; color: #374151; font-size: 11px;">Valor Face</th>
-                <th style="padding: 12px; text-align: right; border: 1px solid #d1d5db; font-weight: bold; color: #374151; font-size: 11px;">Deságio</th>
-                <th style="padding: 12px; text-align: right; border: 1px solid #d1d5db; font-weight: bold; color: #374151; font-size: 11px;">Valor Líquido</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${resultado.linhas
-                .map(
-                  (linha, index) => `
-                <tr style="background: ${
-                  index % 2 === 0 ? "#ffffff" : "#f9fafb"
-                };">
-                  <td style="padding: 12px; border: 1px solid #d1d5db; font-weight: 500; color: #1f2937;">${
-                    linha.titulo
-                  }</td>
-                  <td style="padding: 12px; border: 1px solid #d1d5db; text-align: center; color: #374151;">${
-                    linha.dias
-                  }</td>
-                  <td style="padding: 12px; border: 1px solid #d1d5db; text-align: right; color: #1f2937; font-weight: 500;">${formatCurrency(
-                    linha.valorFace
-                  )}</td>
-                  <td style="padding: 12px; border: 1px solid #d1d5db; text-align: right; color: #dc2626; font-weight: 500;">${formatCurrency(
-                    linha.desagio
-                  )}</td>
-                  <td style="padding: 12px; border: 1px solid #d1d5db; text-align: right; color: #1f2937; font-weight: bold;">${formatCurrency(
-                    linha.valorLiquido
-                  )}</td>
-                </tr>
-              `
-                )
-                .join("")}
-            </tbody>
-          </table>
-        </div>
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text("Soluções Financeiras", pageWidth / 2, yPosition, {
+        align: "center",
+      });
+      yPosition += 15;
 
-        <!-- Resumo Financeiro em Grid -->
-        <div style="margin-bottom: 30px;">
-          <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 15px; font-weight: bold; border-bottom: 1px solid #d1d5db; padding-bottom: 8px;">
-            Resumo Financeiro
-          </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-            <div style="background: #f0fdf4; padding: 20px; border: 1px solid #bbf7d0; border-radius: 6px;">
-              <h4 style="margin: 0 0 12px 0; color: #166534; font-size: 13px; font-weight: bold;">Receitas</h4>
-              <div style="font-size: 18px; font-weight: bold; color: #166534; margin-bottom: 5px;">
-                ${formatCurrency(resultado.totalBruto)}
-              </div>
-              <div style="font-size: 11px; color: #6b7280;">Total Bruto</div>
-            </div>
-            <div style="background: #fef2f2; padding: 20px; border: 1px solid #fecaca; border-radius: 6px;">
-              <h4 style="margin: 0 0 12px 0; color: #991b1b; font-size: 13px; font-weight: bold;">Despesas</h4>
-              <div style="font-size: 18px; font-weight: bold; color: #991b1b; margin-bottom: 5px;">
-                ${formatCurrency(
-                  resultado.totalDesagio + resultado.totalCustos + 7.0
-                )}
-              </div>
-              <div style="font-size: 11px; color: #6b7280;">Total Despesas</div>
-            </div>
-          </div>
-        </div>
+      pdf.setFontSize(18);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(31, 41, 55);
+      pdf.text("Simulação de Operação Financeira", pageWidth / 2, yPosition, {
+        align: "center",
+      });
+      yPosition += 10;
 
-        <!-- Detalhamento dos Custos -->
-        <div style="margin-bottom: 30px;">
-          <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 15px; font-weight: bold; border-bottom: 1px solid #d1d5db; padding-bottom: 8px;">
-            Detalhamento dos Custos
-          </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-            <div style="background: #fef2f2; padding: 20px; border: 1px solid #fecaca; border-radius: 6px;">
-              <h4 style="margin: 0 0 15px 0; color: #991b1b; font-size: 13px; font-weight: bold;">Despesas Detalhadas</h4>
-              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px 0; border-bottom: 1px solid #fecaca;">
-                <span style="color: #6b7280;">Deságio Total:</span>
-                <strong style="color: #991b1b;">${formatCurrency(
-                  resultado.totalDesagio
-                )}</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px 0; border-bottom: 1px solid #fecaca;">
-                <span style="color: #6b7280;">Tarifas:</span>
-                <strong style="color: #991b1b;">${formatCurrency(
-                  resultado.totalCustos
-                )}</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                <span style="color: #6b7280;">TED:</span>
-                <strong style="color: #991b1b;">R$ 7,00</strong>
-              </div>
-            </div>
-            <div style="background: #eff6ff; padding: 20px; border: 1px solid #bfdbfe; border-radius: 6px;">
-              <h4 style="margin: 0 0 15px 0; color: #1e40af; font-size: 13px; font-weight: bold; text-align: center;">Resultado Final</h4>
-              <div style="text-align: center;">
-                <div style="font-size: 20px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">
-                  ${formatCurrency(resultado.valorLiquido)}
-                </div>
-                <div style="font-size: 11px; color: #6b7280;">Valor Líquido a Receber</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text(
+        `Data da Simulação: ${new Date().toLocaleDateString("pt-BR")}`,
+        pageWidth / 2,
+        yPosition,
+        { align: "center" }
+      );
+      yPosition += 20;
 
-        <!-- Rodapé -->
-        <div style="margin-top: 40px; padding-top: 25px; border-top: 1px solid #d1d5db; text-align: center; color: #6b7280; font-size: 10px;">
-          <p style="margin: 0; margin-bottom: 5px;">Este documento foi gerado automaticamente pelo sistema Nova Verte</p>
-          <p style="margin: 0;">Para dúvidas, entre em contato conosco</p>
-        </div>
-      `;
+      // Linha separadora
+      pdf.setDrawColor(55, 65, 81);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 15;
 
-      // Adicionar o elemento ao DOM temporariamente
-      document.body.appendChild(pdfElement);
+      // Configurações da Operação
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(31, 41, 55);
+      pdf.text("Configurações da Operação", margin, yPosition);
+      yPosition += 8;
 
-      // Gerar o PDF
-      const canvas = await html2canvas(pdfElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        width: 210 * 5.90551, // Converter mm para px
-        height: 297 * 5.90551, // Converter mm para px
+      // Grid de configurações
+      const configBoxWidth = (contentWidth - 20) / 2;
+      const configBoxHeight = 15;
+
+      // Primeira coluna - Taxa
+      pdf.setFillColor(249, 250, 251);
+      pdf.rect(margin, yPosition, configBoxWidth, configBoxHeight, "F");
+      pdf.setDrawColor(229, 231, 235);
+      pdf.rect(margin, yPosition, configBoxWidth, configBoxHeight, "S");
+
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(55, 65, 81);
+      pdf.text(
+        `Taxa a.m.: ${taxaMensal.replace(".", ",")}%`,
+        margin + 5,
+        yPosition + 10
+      );
+
+      // Segunda coluna - Total de Títulos
+      pdf.setFillColor(249, 250, 251);
+      pdf.rect(
+        margin + configBoxWidth + 20,
+        yPosition,
+        configBoxWidth,
+        configBoxHeight,
+        "F"
+      );
+      pdf.setDrawColor(229, 231, 235);
+      pdf.rect(
+        margin + configBoxWidth + 20,
+        yPosition,
+        configBoxWidth,
+        configBoxHeight,
+        "S"
+      );
+
+      pdf.text(
+        `Total de Títulos: ${duplicatas.length}`,
+        margin + configBoxWidth + 25,
+        yPosition + 10
+      );
+      yPosition += configBoxHeight + 20;
+
+      // Tabela de Resultados
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(31, 41, 55);
+      pdf.text("Detalhamento dos Títulos", margin, yPosition);
+      yPosition += 8;
+
+      // Cabeçalho da tabela
+      const tableHeaders = [
+        "Título",
+        "Dias",
+        "Valor Face",
+        "Deságio",
+        "Valor Líquido",
+      ];
+      const columnWidths = [35, 20, 40, 40, 40];
+      let xPosition = margin;
+
+      pdf.setFillColor(243, 244, 246);
+      pdf.rect(margin, yPosition, contentWidth, 12, "F");
+      pdf.setDrawColor(209, 213, 219);
+      pdf.rect(margin, yPosition, contentWidth, 12, "S");
+
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(55, 65, 81);
+
+      tableHeaders.forEach((header, index) => {
+        const align = index === 0 ? "left" : index === 1 ? "center" : "right";
+        pdf.text(header, xPosition + (index === 0 ? 5 : 0), yPosition + 8, {
+          align,
+        });
+        xPosition += columnWidths[index];
       });
 
-      // Remover o elemento temporário
-      document.body.removeChild(pdfElement);
+      yPosition += 12;
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
+      // Linhas da tabela
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "normal");
 
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
+      resultado.linhas.forEach((linha, index) => {
+        if (yPosition > pageHeight - 40) {
+          pdf.addPage();
+          yPosition = margin;
+        }
 
-      let position = 0;
+        const bgColor = index % 2 === 0 ? [255, 255, 255] : [249, 250, 251];
+        pdf.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+        pdf.rect(margin, yPosition, contentWidth, 12, "F");
+        pdf.setDrawColor(209, 213, 219);
+        pdf.rect(margin, yPosition, contentWidth, 12, "S");
 
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+        xPosition = margin;
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+        // Título
+        pdf.setTextColor(31, 41, 55);
+        pdf.text(linha.titulo, xPosition + 5, yPosition + 8);
+        xPosition += columnWidths[0];
+
+        // Dias
+        pdf.setTextColor(55, 65, 81);
+        pdf.text(
+          linha.dias.toString(),
+          xPosition + columnWidths[1] / 2,
+          yPosition + 8,
+          { align: "center" }
+        );
+        xPosition += columnWidths[1];
+
+        // Valor Face
+        pdf.setTextColor(31, 41, 55);
+        pdf.text(
+          formatCurrency(linha.valorFace),
+          xPosition + columnWidths[2] - 5,
+          yPosition + 8,
+          { align: "right" }
+        );
+        xPosition += columnWidths[2];
+
+        // Deságio
+        pdf.setTextColor(220, 38, 38);
+        pdf.text(
+          formatCurrency(linha.desagio),
+          xPosition + columnWidths[3] - 5,
+          yPosition + 8,
+          { align: "right" }
+        );
+        xPosition += columnWidths[3];
+
+        // Valor Líquido
+        pdf.setTextColor(31, 41, 55);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(
+          formatCurrency(linha.valorLiquido),
+          xPosition + columnWidths[4] - 5,
+          yPosition + 8,
+          { align: "right" }
+        );
+        pdf.setFont("helvetica", "normal");
+
+        yPosition += 12;
+      });
+
+      yPosition += 15;
+
+      // Resumo Financeiro em Grid
+      if (yPosition > pageHeight - 80) {
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        yPosition = margin;
       }
+
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(31, 41, 55);
+      pdf.text("Resumo Financeiro", margin, yPosition);
+      yPosition += 8;
+
+      // Grid 2x2 para resumo
+      const gridBoxWidth = (contentWidth - 20) / 2;
+      const gridBoxHeight = 25;
+
+      // Receitas
+      pdf.setFillColor(240, 253, 244);
+      pdf.rect(margin, yPosition, gridBoxWidth, gridBoxHeight, "F");
+      pdf.setDrawColor(187, 247, 208);
+      pdf.rect(margin, yPosition, gridBoxWidth, gridBoxHeight, "S");
+
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(22, 101, 52);
+      pdf.text("Receitas", margin + 5, yPosition + 8);
+
+      pdf.setFontSize(16);
+      pdf.text(
+        formatCurrency(resultado.totalBruto),
+        margin + 5,
+        yPosition + 18
+      );
+
+      pdf.setFontSize(8);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text("Total Bruto", margin + 5, yPosition + 25);
+
+      // Despesas
+      pdf.setFillColor(254, 242, 242);
+      pdf.rect(
+        margin + gridBoxWidth + 20,
+        yPosition,
+        gridBoxWidth,
+        gridBoxHeight,
+        "F"
+      );
+      pdf.setDrawColor(254, 202, 202);
+      pdf.rect(
+        margin + gridBoxWidth + 20,
+        yPosition,
+        gridBoxWidth,
+        gridBoxHeight,
+        "S"
+      );
+
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(153, 27, 27);
+      pdf.text("Despesas", margin + gridBoxWidth + 25, yPosition + 8);
+
+      pdf.setFontSize(16);
+      pdf.text(
+        formatCurrency(resultado.totalDesagio + resultado.totalCustos + 7.0),
+        margin + gridBoxWidth + 25,
+        yPosition + 18
+      );
+
+      pdf.setFontSize(8);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text("Total Despesas", margin + gridBoxWidth + 25, yPosition + 25);
+
+      yPosition += gridBoxHeight + 20;
+
+      // Detalhamento dos Custos
+      if (yPosition > pageHeight - 80) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(31, 41, 55);
+      pdf.text("Detalhamento dos Custos", margin, yPosition);
+      yPosition += 8;
+
+      // Grid 2x1 para detalhamento
+      const detailBoxWidth = (contentWidth - 20) / 2;
+      const detailBoxHeight = 35;
+
+      // Despesas Detalhadas
+      pdf.setFillColor(254, 242, 242);
+      pdf.rect(margin, yPosition, detailBoxWidth, detailBoxHeight, "F");
+      pdf.setDrawColor(254, 202, 202);
+      pdf.rect(margin, yPosition, detailBoxWidth, detailBoxHeight, "S");
+
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(153, 27, 27);
+      pdf.text("Despesas Detalhadas", margin + 5, yPosition + 8);
+
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+
+      let detailY = yPosition + 18;
+      pdf.text("Deságio Total:", margin + 5, detailY);
+      pdf.setTextColor(153, 27, 27);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(
+        formatCurrency(resultado.totalDesagio),
+        margin + detailBoxWidth - 5,
+        detailY,
+        { align: "right" }
+      );
+
+      detailY += 6;
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text("Tarifas:", margin + 5, detailY);
+      pdf.setTextColor(153, 27, 27);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(
+        formatCurrency(resultado.totalCustos),
+        margin + detailBoxWidth - 5,
+        detailY,
+        { align: "right" }
+      );
+
+      detailY += 6;
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text("TED:", margin + 5, detailY);
+      pdf.setTextColor(153, 27, 27);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("R$ 7,00", margin + detailBoxWidth - 5, detailY, {
+        align: "right",
+      });
+
+      // Resultado Final
+      pdf.setFillColor(239, 246, 255);
+      pdf.rect(
+        margin + detailBoxWidth + 20,
+        yPosition,
+        detailBoxWidth,
+        detailBoxHeight,
+        "F"
+      );
+      pdf.setDrawColor(191, 219, 254);
+      pdf.rect(
+        margin + detailBoxWidth + 20,
+        yPosition,
+        detailBoxWidth,
+        detailBoxHeight,
+        "S"
+      );
+
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(30, 64, 175);
+      pdf.text("Resultado Final", margin + detailBoxWidth + 25, yPosition + 8);
+
+      pdf.setFontSize(18);
+      pdf.text(
+        formatCurrency(resultado.valorLiquido),
+        margin + detailBoxWidth + 25 + detailBoxWidth / 2,
+        yPosition + 25,
+        { align: "center" }
+      );
+
+      pdf.setFontSize(8);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text(
+        "Valor Líquido a Receber",
+        margin + detailBoxWidth + 25 + detailBoxWidth / 2,
+        yPosition + 35,
+        { align: "center" }
+      );
+
+      yPosition += detailBoxHeight + 20;
+
+      // Rodapé
+      if (yPosition > pageHeight - 30) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+
+      pdf.setDrawColor(209, 213, 219);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 15;
+
+      pdf.setFontSize(8);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(107, 114, 128);
+      pdf.text(
+        "Este documento foi gerado automaticamente pelo sistema Nova Verte",
+        pageWidth / 2,
+        yPosition,
+        { align: "center" }
+      );
+      yPosition += 5;
+      pdf.text(
+        "Para dúvidas, entre em contato conosco",
+        pageWidth / 2,
+        yPosition,
+        { align: "center" }
+      );
 
       const fileName = `simulacao-nova-verte-${
         new Date().toISOString().split("T")[0]
@@ -448,278 +684,286 @@ const CalculatorSection: React.FC = () => {
   };
 
   return (
-    <section id="calculator" className="mt-16 md:mt-20">
-      <div className="bg-white shadow-lg mx-auto p-4 sm:p-6 md:p-8 border border-slate-200 rounded-2xl max-w-6xl">
-        <div className="items-start gap-4 sm:gap-6 lg:gap-8 grid grid-cols-1 lg:grid-cols-5">
-          <div className="lg:col-span-2">
-            <h3 className="font-bold text-slate-900 text-xl sm:text-2xl">
-              Simulador de Operação
-            </h3>
-            <p className="mt-2 text-slate-600 text-sm sm:text-base">
-              Adicione suas duplicatas e configure a operação.
-            </p>
+    <section id="calculator">
+      <Card className="mx-auto max-w-6xl">
+        <CardContent className="p-6 md:p-8">
+          <div className="items-start gap-8 grid grid-cols-1 lg:grid-cols-5">
+            {/* Calculator Form */}
+            <div className="lg:col-span-2">
+              <h3 className="font-bold text-slate-900 text-2xl">
+                Simulador de Operação
+              </h3>
+              <p className="mt-2 text-slate-600">
+                Adicione suas duplicatas e configure a operação.
+              </p>
 
-            <div className="space-y-4 mt-6">
-              <div className="space-y-3 bg-slate-50 p-3 sm:p-4 border border-slate-200 rounded-lg">
-                <h4 className="font-bold text-slate-800 text-sm sm:text-base">
-                  Configurações da Operação
-                </h4>
-                <div>
-                  <label
-                    htmlFor="taxaInput"
-                    className="block font-medium text-slate-700 text-xs sm:text-sm"
-                  >
-                    Taxa a.m. (%)
-                  </label>
-                  <CurrencyInput
-                    placeholder="00,00"
-                    className="mt-1 px-2 py-1.5 border-slate-300 rounded-md w-full text-xs sm:text-sm"
-                    value={parseFloat(taxaMensal) || 0}
-                    onChange={(value) => setTaxaMensal(value.toString())}
-                  />
-                </div>
-                <div className="pt-3 border-slate-200 border-t">
-                  <p className="font-medium text-slate-700 text-sm">
-                    Custos Fixos
-                  </p>
-                  <div className="space-y-2 mt-3 text-slate-600 text-sm">
-                    <div className="flex sm:flex-row flex-col sm:justify-between gap-1">
-                      <span className="text-xs sm:text-sm">
-                        Tarifa de INCLUSÃO Operação:
-                      </span>
-                      <strong className="text-xs sm:text-sm">R$ 25,00</strong>
+              <div className="space-y-4 mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">
+                      Configurações da Operação
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="taxaInput">Taxa a.m. (%)</Label>
+                      <CurrencyInput
+                        placeholder="00,00"
+                        className="mt-1"
+                        value={parseFloat(taxaMensal) || 0}
+                        onChange={(value) => setTaxaMensal(value.toString())}
+                      />
                     </div>
-                    <div className="flex sm:flex-row flex-col sm:justify-between gap-1">
-                      <span className="text-xs sm:text-sm">
-                        Tarifa PIX (por OPERAÇÃO):
-                      </span>
-                      <strong className="text-xs sm:text-sm">R$ 7,00</strong>
+                    <div className="pt-3 border-slate-200 border-t">
+                      <Label className="font-medium text-base">
+                        Custos Fixos
+                      </Label>
+                      <div className="space-y-1 mt-2 text-slate-600 text-sm">
+                        <p className="flex justify-between">
+                          <span>Tarifa de INCLUSÃO Operação:</span>
+                          <strong>R$ 25,00</strong>
+                        </p>
+                        <p className="flex justify-between">
+                          <span>Tarifa PIX (por OPERAÇÃO):</span>
+                          <strong>R$ 7,00</strong>
+                        </p>
+                        <p className="flex justify-between">
+                          <span>Registro de Cobrança (por TITULO):</span>
+                          <strong>R$ 9,80</strong>
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex sm:flex-row flex-col sm:justify-between gap-1">
-                      <span className="text-xs sm:text-sm">
-                        Registro de Cobrança (por TITULO):
-                      </span>
-                      <strong className="text-xs sm:text-sm">R$ 9,80</strong>
+                  </CardContent>
+                </Card>
+
+                <div
+                  id="duplicatas-container"
+                  className="space-y-3 py-4 border-slate-200 border-t border-b"
+                >
+                  {duplicatas.map((duplicata) => (
+                    <div
+                      key={duplicata.id}
+                      className="relative gap-2 grid grid-cols-2 p-2 border border-slate-200 rounded-md duplicata-row"
+                    >
+                      <CurrencyInput
+                        className="block bg-white shadow-sm px-3 py-2 border border-slate-300 focus:border-brand-green rounded-md focus:outline-none focus:ring-brand-green w-full placeholder-slate-400"
+                        placeholder="00,00"
+                        value={parseFloat(duplicata.valor) || 0}
+                        onChange={(value) =>
+                          handleValorChange(duplicata.id, value)
+                        }
+                      />
+                      <Input
+                        type="date"
+                        min={today}
+                        className="block bg-white shadow-sm px-3 py-2 border border-slate-300 focus:border-brand-green rounded-md focus:outline-none focus:ring-brand-green w-full"
+                        value={duplicata.data}
+                        onChange={(e) =>
+                          updateDuplicata(duplicata.id, "data", e.target.value)
+                        }
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="-top-2 -right-2 absolute bg-white p-0 rounded-full w-8 h-8 text-slate-400 hover:text-red-500 transition-colors remove-btn"
+                        onClick={() => removeDuplicata(duplicata.id)}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </Button>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              <div
-                id="duplicatas-container"
-                className="space-y-3 py-3 sm:py-4 border-slate-200 border-t border-b"
-              >
-                {duplicatas.map((duplicata) => (
-                  <div
-                    key={duplicata.id}
-                    className="relative gap-2 grid grid-cols-1 sm:grid-cols-2 p-2 sm:p-3 border border-slate-200 rounded-md duplicata-row"
-                  >
-                    <CurrencyInput
-                      className="block bg-white shadow-sm px-2 sm:px-3 py-2 border border-slate-300 focus:border-brand-green rounded-md focus:outline-none focus:ring-brand-green w-full text-sm valor-input placeholder-slate-400"
-                      placeholder="00,00"
-                      value={parseFloat(duplicata.valor) || 0}
-                      onChange={(value) =>
-                        handleValorChange(duplicata.id, value)
-                      }
-                    />
-                    <input
-                      type="date"
-                      min={today}
-                      className="block bg-white shadow-sm px-2 sm:px-3 py-2 border border-slate-300 focus:border-brand-green rounded-md focus:outline-none focus:ring-brand-green w-full text-sm data-input"
-                      value={duplicata.data}
-                      onChange={(e) =>
-                        updateDuplicata(duplicata.id, "data", e.target.value)
-                      }
-                    />
-                    <button
-                      className="-top-2 -right-2 absolute bg-white shadow-sm rounded-full text-slate-400 hover:text-red-500 transition-colors remove-btn"
-                      onClick={() => removeDuplicata(duplicata.id)}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 sm:w-5 h-4 sm:h-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-4 mt-4">
+                <Button variant="outline" onClick={addDuplicata}>
+                  Adicionar Duplicata
+                </Button>
+                <Button onClick={calcular}>Calcular</Button>
+                <Button variant="outline" onClick={limparDados}>
+                  Limpar Dados
+                </Button>
               </div>
             </div>
 
-            <div className="flex sm:flex-row flex-col gap-3 sm:gap-4 mt-4">
-              <button
-                onClick={addDuplicata}
-                className="bg-slate-200 hover:bg-slate-300 px-3 sm:px-4 py-2 rounded-lg w-full font-bold text-slate-800 text-sm sm:text-base transition duration-300"
-              >
-                Adicionar Duplicata
-              </button>
-              <button
-                onClick={calcular}
-                className="bg-brand-green hover:bg-brand-green-dark px-3 sm:px-4 py-2 sm:py-3 rounded-lg w-full font-bold text-white text-sm sm:text-base transition duration-300"
-              >
-                Calcular
-              </button>
-              <button
-                onClick={limparDados}
-                className="bg-red-600 hover:bg-red-700 px-3 sm:px-4 py-2 rounded-lg w-full font-bold text-white text-sm sm:text-base transition duration-300"
-              >
-                Limpar Dados
-              </button>
+            {/* Calculator Result - Ao lado do formulário */}
+            <div className="lg:col-span-3">
+              {showResultado && resultado ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">
+                      Resultado da Simulação
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Título</TableHead>
+                            <TableHead className="text-center">Dias</TableHead>
+                            <TableHead className="text-right">
+                              Valor Face
+                            </TableHead>
+                            <TableHead className="text-right">
+                              Deságio (R$)
+                            </TableHead>
+                            <TableHead className="text-right">
+                              Valor Líquido
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {resultado.linhas.map((linha, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">
+                                {linha.titulo}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {linha.dias}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {formatCurrency(linha.valorFace)}
+                              </TableCell>
+                              <TableCell className="text-red-600 text-right">
+                                {formatCurrency(linha.desagio)}
+                              </TableCell>
+                              <TableCell className="font-bold text-right">
+                                {formatCurrency(linha.valorLiquido)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    <div
+                      id="tarifasExplicacao"
+                      className="mt-6 pt-4 border-slate-200 border-t"
+                    >
+                      <h4 className="font-bold text-slate-800">
+                        Resumo Financeiro
+                      </h4>
+                      <p className="mb-2 text-slate-500 text-xs">
+                        Deságio calculado com taxa de{" "}
+                        <strong id="taxaResultado">
+                          {taxaMensal.replace(".", ",")}
+                        </strong>
+                        % a.m.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 mt-2 pt-4 border-slate-300 border-t-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">
+                          Total Bruto (Soma):
+                        </span>
+                        <strong id="totalBruto" className="text-slate-800">
+                          {formatCurrency(resultado.totalBruto)}
+                        </strong>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Total Deságio:</span>
+                        <strong id="totalDesagio" className="text-red-600">
+                          {formatCurrency(resultado.totalDesagio)}
+                        </strong>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">
+                          Total de Tarifas:
+                        </span>
+                        <strong id="totalCustos" className="text-red-600">
+                          {formatCurrency(resultado.totalCustos)}
+                        </strong>
+                      </div>
+                      <div className="flex justify-between items-center mt-4 pt-4 border-slate-300 border-t">
+                        <span className="font-bold text-slate-800 text-lg">
+                          Total Líquido a Receber:
+                        </span>
+                        <strong
+                          id="valorLiquido"
+                          className="font-bold text-2xl brand-green"
+                        >
+                          {formatCurrency(resultado.valorLiquido)}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="flex sm:flex-row flex-col gap-2 mt-6 pt-4 border-slate-200 border-t">
+                      <Button
+                        onClick={gerarPDF}
+                        className="flex justify-center items-center gap-2"
+                        variant="outline"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        Exportar PDF
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={limparDados}
+                        className="flex justify-center items-center gap-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Limpar Dados
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="py-12 text-slate-500 text-center">
+                    <div className="mb-4 text-4xl">📊</div>
+                    <h3 className="mb-2 font-medium text-slate-700 text-lg">
+                      Resultado da Simulação
+                    </h3>
+                    <p className="text-sm">
+                      Adicione duplicatas e clique em "Calcular" para ver o
+                      resultado aqui.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
-
-          {showResultado && resultado && (
-            <div
-              id="resultadoCalculo"
-              className="lg:col-span-3 bg-slate-50 p-6 border border-slate-200 rounded-lg"
-            >
-              <h3 className="mb-4 font-bold text-slate-900 text-2xl">
-                Resultado da Simulação
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-slate-500 text-sm text-left">
-                  <thead className="bg-slate-200 text-slate-700 text-xs uppercase">
-                    <tr>
-                      <th scope="col" className="px-4 py-3">
-                        Título
-                      </th>
-                      <th scope="col" className="px-4 py-3 text-center">
-                        Dias
-                      </th>
-                      <th scope="col" className="px-4 py-3 text-right">
-                        Valor Face
-                      </th>
-                      <th scope="col" className="px-4 py-3 text-right">
-                        Deságio (R$)
-                      </th>
-                      <th scope="col" className="px-4 py-3 text-right">
-                        Valor Líquido
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody id="resultadoTabela">
-                    {resultado.linhas.map((linha, index) => (
-                      <tr key={index} className="bg-white border-b">
-                        <td className="px-4 py-2 font-medium text-slate-900">
-                          {linha.titulo}
-                        </td>
-                        <td className="px-4 py-2 text-center">{linha.dias}</td>
-                        <td className="px-4 py-2 text-right">
-                          {formatCurrency(linha.valorFace)}
-                        </td>
-                        <td className="px-4 py-2 text-red-600 text-right">
-                          {formatCurrency(linha.desagio)}
-                        </td>
-                        <td className="px-4 py-2 font-bold text-slate-900 text-right">
-                          {formatCurrency(linha.valorLiquido)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div
-                id="tarifasExplicacao"
-                className="mt-6 pt-4 border-slate-200 border-t"
-              >
-                <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3">
-                  <div>
-                    <h4 className="font-bold text-slate-800">
-                      Resumo Financeiro
-                    </h4>
-                    <p className="mb-2 text-slate-500 text-xs">
-                      Deságio calculado com taxa de{" "}
-                      <strong>{taxaMensal.replace(".", ",")}%</strong> a.m.
-                    </p>
-                  </div>
-                  <div className="flex sm:flex-row flex-col gap-2">
-                    <button
-                      onClick={gerarPDF}
-                      className="flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg font-medium text-white text-sm transition duration-300"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                      Exportar PDF
-                    </button>
-                    <button
-                      onClick={limparDados}
-                      className="flex justify-center items-center gap-2 bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg font-medium text-white text-sm transition duration-300"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                      Limpar Dados
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2 mt-2 pt-4 border-slate-300 border-t-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Total Bruto (Soma):</span>
-                  <strong id="totalBruto" className="text-slate-800">
-                    {formatCurrency(resultado.totalBruto)}
-                  </strong>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Total Deságio:</span>
-                  <strong id="totalDesagio" className="text-red-600">
-                    {formatCurrency(resultado.totalDesagio)}
-                  </strong>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Total de Tarifas:</span>
-                  <strong id="totalCustos" className="text-red-600">
-                    {formatCurrency(resultado.totalCustos)}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center mt-4 pt-4 border-slate-300 border-t">
-                  <span className="font-bold text-slate-800 text-lg">
-                    Total Líquido a Receber:
-                  </span>
-                  <strong
-                    id="valorLiquido"
-                    className="font-bold text-2xl brand-green"
-                  >
-                    {formatCurrency(resultado.valorLiquido)}
-                  </strong>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </section>
   );
 };
