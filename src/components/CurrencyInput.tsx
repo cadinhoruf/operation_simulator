@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 
 interface CurrencyInputProps {

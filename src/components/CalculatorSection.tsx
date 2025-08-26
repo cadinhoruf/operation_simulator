@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CurrencyInput } from "./CurrencyInput";
 import { Button } from "./ui/button";
@@ -136,7 +136,7 @@ const CalculatorSection: React.FC = () => {
     return 0;
   };
 
-  const calcular = () => {
+  const calcular = useCallback(() => {
     if (duplicatas.length === 0) {
       toast.error("Adicione pelo menos uma duplicata para calcular.");
       return;
@@ -213,15 +213,16 @@ const CalculatorSection: React.FC = () => {
     });
     setShowResultado(true);
     toast.success("Cálculo realizado com sucesso!");
-  };
+  }, [duplicatas, taxaMensal]);
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = useCallback((value: number) => {
     return value.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
-  };
-  const limparDados = () => {
+  }, []);
+
+  const limparDados = useCallback(() => {
     setDuplicatas([]);
     setResultado(null);
     setShowResultado(false);
@@ -240,7 +241,7 @@ const CalculatorSection: React.FC = () => {
     };
     setDuplicatas([newDuplicata]);
     toast.success("Dados limpos com sucesso!");
-  };
+  }, [today]);
 
   const gerarPDF = async () => {
     if (!resultado) {
@@ -602,6 +603,15 @@ const CalculatorSection: React.FC = () => {
     }
   };
 
+  // Memoizar o resultado para evitar recálculos desnecessários
+  const memoizedResultado = useMemo(() => resultado, [resultado]);
+
+  // Memoizar as linhas da tabela
+  const memoizedLinhas = useMemo(
+    () => memoizedResultado?.linhas || [],
+    [memoizedResultado?.linhas]
+  );
+
   return (
     <section id="calculator">
       <Card className="mx-auto max-w-6xl">
@@ -720,7 +730,7 @@ const CalculatorSection: React.FC = () => {
 
             {/* Calculator Result - Ao lado do formulário */}
             <div className="lg:col-span-3">
-              {showResultado && resultado ? (
+              {showResultado && memoizedResultado ? (
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-xl">
@@ -748,7 +758,7 @@ const CalculatorSection: React.FC = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {resultado.linhas.map((linha, index) => (
+                          {memoizedLinhas.map((linha, index) => (
                             <TableRow key={index}>
                               <TableCell className="font-medium text-xs">
                                 {linha.titulo}
@@ -775,7 +785,7 @@ const CalculatorSection: React.FC = () => {
                       <div className="flex justify-between mb-2 text-xs">
                         <span className="text-slate-600">Total Bruto:</span>
                         <strong className="text-slate-800">
-                          {formatCurrency(resultado.totalBruto)}
+                          {formatCurrency(memoizedResultado.totalBruto)}
                         </strong>
                       </div>
                       <div className="flex justify-between mb-2 text-xs">
@@ -783,13 +793,13 @@ const CalculatorSection: React.FC = () => {
                           Total Deságio (c/ float):
                         </span>
                         <strong className="text-red-600">
-                          {formatCurrency(resultado.totalDesagio)}
+                          {formatCurrency(memoizedResultado.totalDesagio)}
                         </strong>
                       </div>
                       <div className="flex justify-between mb-3 text-xs">
                         <span className="text-slate-600">Total Tarifas:</span>
                         <strong className="text-red-600">
-                          {formatCurrency(resultado.totalCustos)}
+                          {formatCurrency(memoizedResultado.totalCustos)}
                         </strong>
                       </div>
                       <div className="flex justify-between items-center mb-4 pt-2 border-slate-300 border-t">
@@ -797,7 +807,7 @@ const CalculatorSection: React.FC = () => {
                           Total Líquido:
                         </span>
                         <strong className="font-bold text-lg brand-green">
-                          {formatCurrency(resultado.valorLiquido)}
+                          {formatCurrency(memoizedResultado.valorLiquido)}
                         </strong>
                       </div>
                     </div>
@@ -872,4 +882,4 @@ const CalculatorSection: React.FC = () => {
   );
 };
 
-export default CalculatorSection;
+export default React.memo(CalculatorSection);

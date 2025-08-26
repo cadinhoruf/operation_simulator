@@ -13,4 +13,24 @@ export default {
     },
   },
   plugins: [],
+  // Otimizações para produção
+  corePlugins: {
+    // Desabilitar utilitários não utilizados
+    preflight: true,
+    container: false,
+  },
+  // Purge CSS para remover classes não utilizadas
+  purge: {
+    enabled: process.env.NODE_ENV === "production",
+    content: ["./src/**/*.{js,ts,jsx,tsx}"],
+    options: {
+      safelist: [
+        "brand-green",
+        "bg-brand-green",
+        "border-brand-green",
+        "hover:bg-brand-green-dark",
+        "focus:ring-brand-green",
+      ],
+    },
+  },
 };

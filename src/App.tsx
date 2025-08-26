@@ -1,5 +1,6 @@
 import { Toaster } from "sonner";
 import NovaVertePage from "./components/NovaVertePage";
+import "./index.css";
 
 function App() {
   return (
